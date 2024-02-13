@@ -31,11 +31,13 @@ public class S3Service {
 
     public String postFile(MultipartFile multipartFile) throws IOException{
         File uploadFile = convert(multipartFile)
+                // multipartFile이 없을 때 실행이 안되었을 때
                 .orElseThrow(() -> new IllegalArgumentException("MultipartFile -> File 전환 실패"));
         return uploadFileToS3(uploadFile);
     }
 
     private String uploadFileToS3(File uploadFile){
+        // random id 생성 후 파일 이름
         UUID uuid = UUID.randomUUID();
         String fileName = uploadFile.getName() + "_" + uuid;
         String filePath = uploadFile.getName();
@@ -52,6 +54,8 @@ public class S3Service {
                 .imageName(fileName)
                 .imagePath(filePath)
                 .build();
+        System.out.println(s3Image.getImageName());
+        System.out.println(s3Image.getImagePath());
         s3Repository.save(s3Image);
     }
 
@@ -76,10 +80,15 @@ public class S3Service {
     private Optional<File> convert(MultipartFile file) throws  IOException {
         File convertFile = new File(file.getOriginalFilename());
         if(convertFile.createNewFile()) {
+            // createNewFile : 빈 파일 생성 -> 같은 이름을 가진 파일이 없으면 true / 있으면 false
             try (FileOutputStream fos = new FileOutputStream(convertFile)) {
+                // FileOutputStream 무조건 파일 생성 -> 존재하는 파일은 덮어쓰기
                 fos.write(file.getBytes());
+                // 입력받은 내용을 파일 내용으로 기록
             }
+            System.out.println(file);
             return Optional.of(convertFile);
+            // null이 올 수 있는 값을 감싸는 Wrapper 클래스 / 참조하더라도 NPE가 발생하지 않도록 도와준다.
         }
         return Optional.empty();
     }
