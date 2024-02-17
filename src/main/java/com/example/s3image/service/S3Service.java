@@ -6,6 +6,7 @@ import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.example.s3image.domain.S3Image;
 import com.example.s3image.dto.request.S3ImageReqeust;
+import com.example.s3image.dto.response.S3ImageResponse;
 import com.example.s3image.repository.S3Repository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,6 +17,8 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -92,5 +95,24 @@ public class S3Service {
         }
         return Optional.empty();
     }
+
+    // --------- 이미지 RUD ---------
+
+    // 전체 이미지 불러오기
+    public List<S3ImageResponse> findAll(){
+        List<S3Image> s3Images = s3Repository.findAll();
+        List<S3ImageResponse> responses = new ArrayList<>();
+
+        for (S3Image img : s3Images) {
+            S3ImageResponse response = new S3ImageResponse();
+            response.setKeyId(img.getKeyId());
+            response.setImagePath(img.getImagePath());
+            response.setCreateDate(img.getCreateDate());
+
+            responses.add(response);
+        }
+        return responses;
+    }
+
 
 }
