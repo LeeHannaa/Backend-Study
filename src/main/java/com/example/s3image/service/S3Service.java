@@ -114,5 +114,10 @@ public class S3Service {
         return responses;
     }
 
+    // keyId로 특정 이미지만 불러오기
+    public S3Image findByKeyId(Long keyId) {
+        return s3Repository.findById(keyId).get();
+    }
+
 
 }
