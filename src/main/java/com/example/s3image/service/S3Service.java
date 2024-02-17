@@ -1,6 +1,7 @@
 package com.example.s3image.service;
 
 import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
@@ -28,6 +29,7 @@ import java.util.UUID;
 public class S3Service {
     private final S3Repository s3Repository;
     private final AmazonS3 amazonS3;
+    private final AmazonS3Client amazonS3Client;
 
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
@@ -106,6 +108,7 @@ public class S3Service {
         for (S3Image img : s3Images) {
             S3ImageResponse response = new S3ImageResponse();
             response.setKeyId(img.getKeyId());
+            response.setImageName(img.getImageName());
             response.setImagePath(img.getImagePath());
             response.setCreateDate(img.getCreateDate());
 
@@ -123,7 +126,21 @@ public class S3Service {
     public void deleteByKeyId(Long keyId) {
         S3Image s3Image = s3Repository.findById(keyId)
                 .orElseThrow(()-> new IllegalArgumentException("Image not found with id: " + keyId));
-        System.out.println(s3Image);
+        try {
+            String keyName = s3Image.getImageName();
+            System.out.println("keyName"+keyName);
+            boolean isObjectExist = amazonS3Client.doesObjectExist(bucket, keyName);
+            if (isObjectExist) {
+                amazonS3Client.deleteObject(bucket, keyName);
+                System.out.println("s3파일 삭제 성공");
+            }
+            else {
+                System.out.println("s3파일 삭제 실패");
+            }
+        } catch (Exception e) {
+            System.out.println("Delete File failed");
+            System.out.println(e.getMessage());
+        }
         s3Repository.delete(s3Image);
     }
 
