@@ -119,5 +119,12 @@ public class S3Service {
         return s3Repository.findById(keyId).get();
     }
 
+    // keyId로 특정 이미지 삭제하기
+    public void deleteByKeyId(Long keyId) {
+        S3Image s3Image = s3Repository.findById(keyId)
+                .orElseThrow(()-> new IllegalArgumentException("Image not found with id: " + keyId));
+        System.out.println(s3Image);
+        s3Repository.delete(s3Image);
+    }
 
 }

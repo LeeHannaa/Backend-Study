@@ -34,4 +34,9 @@ public class S3ImageController {
         return new ResponseEntity<>(s3Image, HttpStatus.OK);
     }
 
+    @DeleteMapping("/delete/{keyId}")
+    public void s3ImageDelete(@PathVariable Long keyId){
+        s3Service.deleteByKeyId(keyId);
+    }
+
 }
